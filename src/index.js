@@ -12,13 +12,24 @@ class App extends Component {
     super(props);
 
     this.state = {
-      output: []
+      output: [],
+      address: ""
     };
+
+  this.onAddressUpdate = this.onAddressUpdate.bind(this);
 
     ipcRenderer.on('update-miner-output', (event, data) => {
       console.log(`received message: ${event} with ${data}`);
       this.setState({output: [data, ...this.state.output]});
     });
+  }
+
+  onAddressUpdate(event) {
+    this.setState({address: event.target.value});
+    console.log("Updating address: " + event.target.value);
+    if(event.key == 'Enter'){
+      ipcRenderer.send('update-miner-address', event.target.value);
+    }
   }
 
   onStartMining() {
@@ -37,9 +48,17 @@ class App extends Component {
     return (
       <div>
         <div>Hello MINERS!</div>
-        <button onClick={this.onStartMining}>Start Mining</button>
         <div>
-          MINER OUTPUT:
+          <input 
+            className="miner-address" 
+            onKeyPress={this.onAddressUpdate} 
+            type="text"
+            placeholder="Type miner address here..." />
+        </div>
+        <div>
+          <button onClick={this.onStartMining}>Start Mining</button>
+        </div>
+        <div className="outputDiv">
           <ul className="minerOutputList">
             {this.renderLines()}
           </ul>  

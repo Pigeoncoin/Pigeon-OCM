@@ -6,7 +6,6 @@ const { app, ipcMain } = electron;
 const AppTray = require('./app/AppTray');
 const MainWindow = require('./app/MainWindow');
 
-
 const mainConfig = {
     height:720,
     width:1080, 
@@ -16,6 +15,14 @@ const mainConfig = {
     webPreferences: { backgroundThrottling: false },  //dont allow chromium to send with full cpu
     icon: path.join(__dirname, 'assets/icons/png/pigeon.png'),
     title: "Pigeon-OCM"
+}
+
+let minerConfig = {
+    algo:"x16s",
+    url:"stratum+tcp://pool.pigeoncoin.org:3663",
+    user: null, //PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG
+    pass:"x",
+    donate:"7.0"
 }
 
 let mainWindow;
@@ -37,21 +44,31 @@ let sender = null;
 
 ipcMain.on('start-mining', (event, run) => {
     console.log('received start-mining message');
+
+    //validate miner address?
+
     sender = event.sender;
     if(run){
         startMinerInstance();
     }
 });
 
-/*
-ipcMain.on('update-miner-output', (event, arg) => {
-    console.log(`Received miner output: ${arg}`);
-    event.sender.send('update-miner-output', arg);
+ipcMain.on('update-miner-address', (event, address) => {
+    minerConfig.user = address;
+    console.log('received new miner address: ' + address);
+    console.log('new miner config: ' + convertToMinerArgs(minerConfig));
 });
-*/
 
 function asciiToString(data){
     return String.fromCharCode.apply(null, data);
+};
+
+function convertToMinerArgs(config) {
+    let args = Object.keys(config).map((key) => {
+        return `--${key}=${config[key]}`;
+    });
+    console.log("args: " + args);
+    return args;
 }
 
 function startMinerInstance () {
@@ -69,7 +86,7 @@ function startMinerInstance () {
             exe = "pigeonminer.exe"
             break;
     }
-     
+     /*
     let args = [
         '--algo=x16s',
         '--url=stratum+tcp://pool.pigeoncoin.org:3663', 
@@ -77,8 +94,9 @@ function startMinerInstance () {
         '--pass=x',
         '--donate=7.0'
     ];
+    */
+    let args = convertToMinerArgs(minerConfig);
     const { spawn } = require('child_process');
-    spawn
     daemon = spawn(__dirname+`/${exe}`, args);
 
     //listen for data fromt eh miner
