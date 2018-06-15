@@ -26,10 +26,8 @@ class App extends Component {
 
   onAddressUpdate(event) {
     this.setState({address: event.target.value});
+    ipcRenderer.send('update-miner-address', event.target.value);
     console.log("Updating address: " + event.target.value);
-    if(event.key == 'Enter'){
-      ipcRenderer.send('update-miner-address', event.target.value);
-    }
   }
 
   onStartMining() {
@@ -47,11 +45,11 @@ class App extends Component {
   render() {
     return (
       <div>
-        <div>Hello MINERS!</div>
         <div>
+          <label>Miner Address</label>
           <input 
             className="miner-address" 
-            onKeyPress={this.onAddressUpdate} 
+            onChange={this.onAddressUpdate} 
             type="text"
             placeholder="Type miner address here..." />
         </div>

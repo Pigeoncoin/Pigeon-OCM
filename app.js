@@ -1,14 +1,16 @@
-const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
 const path = require('path');
 const electron = require('electron');
 const { app, ipcMain } = electron;
 const AppTray = require('./app/AppTray');
 const MainWindow = require('./app/MainWindow');
+const Miner = require('./src/miner');
+global.appRootDir = path.resolve(__dirname);
+
+const { Device, HashRate, getInfoFromLine, getRateInHash} = require('./src/Utils');
 
 const mainConfig = {
-    height:720,
-    width:1080, 
+    height:640,
+    width:720, 
     frame: true, 
     resizable: true, 
     show: true, //doin't show on start
@@ -23,12 +25,17 @@ let minerConfig = {
     user: null, //PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG
     pass:"x",
     donate:"7.0"
-}
+}; 
+
 
 let mainWindow;
 let tray;
+let hashrate = {}
+let miner;
+let sender = null;
 
 app.on('ready', () => {
+    miner = new Miner(minerConfig, sender);
     //app.dock.hide(); //hide the dock idon
     //frame removes the window border and title bar
     //resizable
@@ -40,91 +47,21 @@ app.on('ready', () => {
     tray = new AppTray(iconPath, mainWindow);
 });
 
-let sender = null;
+
+
 
 ipcMain.on('start-mining', (event, run) => {
     console.log('received start-mining message');
 
     //validate miner address?
 
-    sender = event.sender;
+    miner.sender = event.sender;
     if(run){
-        startMinerInstance();
+        miner.startMinerInstance();
     }
 });
 
 ipcMain.on('update-miner-address', (event, address) => {
-    minerConfig.user = address;
+    miner.minerConfig.user = address;
     console.log('received new miner address: ' + address);
-    console.log('new miner config: ' + convertToMinerArgs(minerConfig));
 });
-
-function asciiToString(data){
-    return String.fromCharCode.apply(null, data);
-};
-
-function convertToMinerArgs(config) {
-    let args = Object.keys(config).map((key) => {
-        return `--${key}=${config[key]}`;
-    });
-    console.log("args: " + args);
-    return args;
-}
-
-function startMinerInstance () {
-    console.log("Attempting to start miner...")
-    //get the proper OS miner exe
-    let exe = null;
-    switch(process.platform) {
-        case 'darwin':
-            
-            break;
-        case 'linux':
-            exe = "pigeonminer";        
-            break;
-        case 'win32':
-            exe = "pigeonminer.exe"
-            break;
-    }
-     /*
-    let args = [
-        '--algo=x16s',
-        '--url=stratum+tcp://pool.pigeoncoin.org:3663', 
-        '--user=PMvTkNxxJqyXb83uiDsMtEm4UGRgbn4z5e',
-        '--pass=x',
-        '--donate=7.0'
-    ];
-    */
-    let args = convertToMinerArgs(minerConfig);
-    const { spawn } = require('child_process');
-    daemon = spawn(__dirname+`/${exe}`, args);
-
-    //listen for data fromt eh miner
-    daemon.stdout.on('data', (data) => {
-        console.log(`Received new miner data: ${data}`);
-        //if we still have an active sender, send it a reply
-        if(sender) {
-            //convert data from ascii to text
-            sender.send('update-miner-output', asciiToString(data));
-        }
-    });
-
-    daemon.stderr.on('data', (err) => {
-        console.log(`Received miner error: ${err}`);
-    });
-
-    daemon.on('close', (code) => {
-        console.log(`Miner closed with code: ${code}`);
-    });
-/*
-    daemon = execFile(__dirname+`/${exe}`,
-     args, (err, stdout, stderr) => {
-        if(err) { 
-            console.log("Error of errory nature: " + err)
-            console.log("ERROR STARTING OR RUNNING MINER: " + stderr)
-        }
-        console.log(`Data: ${stdout}`);
-        ipcRenderer.send("update-miner-output", stdout);
-    });
-    */
-}
