@@ -3,13 +3,14 @@ const MINER_SHARE_PATTERN = /\[(.*?)\]\s+accepted:\s+(\d+)\/(\d+).*?(\d+\.\d+)\s
 const MINER_DEVICE_INFO = /\[(.*?)\]\s+(GPU\s#\d+):\s+(.*?),\s+(\d+.\d+)\s((?:g|m|k|h)H\/s)/;
 
 class Device {
-    constructor(device) {
-        this.device = device;
+    constructor(deviceId, deviceName) {
+        this.deviceId = deviceId;
+        this.deviceName = deviceName;
         this.rates = [];  //array of hashrate objects
     }
 
     //stores up to 1 million entries
-    addHashRate(time, hash) {
+    addHashRate(hashRate) {
         //remove the first 10000 aka oldest
         if(this.rates.length == 1000000) {
             for(let i = 0; i< 10000; i++)
@@ -44,7 +45,8 @@ function getInfoFromLine(line, regex) {
         values.push(match[0]);
         match = regex.exec(line);
     }
-
+    //we only care about speccific lines - shares and device updates
+    if(values.length == 0) { return null;}
     //optionally return an object if we can determine what line type it is
     /*
         Full match	0-72	`[2018-06-14 20:22:31] accepted: 3668/3670 (diff 0.026), 8717.35 kH/s yes`
@@ -59,13 +61,12 @@ function getInfoFromLine(line, regex) {
     //this is a share
     if(line.contains("accepted: ") && values.length == 7) {
         return {
-            type: "share",
+            type: 'share',
             timestamp: values[0],
             acceptedShares: values[1],
             totalShares: values[2],
             diff: values[3],
-            hashRate: values[4],
-            hashUnits: values[5],
+            hashRate: new HashRate(values[0], `${values[4]} ${values[5]}`),
             valid: values[6]
         };
     }
@@ -81,12 +82,10 @@ function getInfoFromLine(line, regex) {
     // device status
     if(line.contains("GPU #") && values.length == 5) {
         return {
-            type: "device",
-            timestamp: values[0],
-            deviceNum: values[1],
-            nname: values[2],
-            hashRate: values[3],
-            hashUnits: values[4]
+            type: 'device',
+            deviceId: values[1],
+            name: values[2],
+            hashRate: new HashRate(values[0], `${values[3]} ${values[4]}`),
         };
     }
 
@@ -107,4 +106,4 @@ function getRateInHash(rate, units) {
     }
 }
 
-module.exports = { Device, HashRate, getInfoFromLine, getRateInHash};
+module.exports = { Device, HashRate, getInfoFromLine, getRateInHash, MINER_DEVICE_INFO};

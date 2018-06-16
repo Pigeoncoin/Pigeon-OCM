@@ -15,6 +15,7 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    //devices is an array of Device Objects
     this.state = {
       output: [],
       address: "",
@@ -31,8 +32,16 @@ class App extends Component {
       this.setState({output: [data, ...this.state.output]});
     });
 
-    ipcRenderer.on('update-device-info', (event, data) => {
-
+    ipcRenderer.on('device-update', (event, device) => {
+      //do we already have this device in the list?
+      //add if not, otherwise update info
+      
+      //does devices exist
+      if(this.state.devices[device]) {
+        this.state.devices[device].rates = [...his.state.devices[device].rates, device.hashRate];
+      } else {
+        this.setState({...this.state.devices,device});
+      }
     });
   }
 

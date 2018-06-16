@@ -2,6 +2,7 @@ const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const path = require('path');
 const { spawn } = require('child_process');
+const { HashRate, getInfoFromLine, MINER_DEVICE_INFO } = require('./Utils');
 
 module.exports = class Miner {
     constructor(config, sender) {
@@ -21,6 +22,14 @@ module.exports = class Miner {
         return args;
     }
     
+    //return object from a device update line - [2018-06-14 06:24:24] GPU #0: GeForce GTX 1070, 8795.55 kH/s
+    getDeviceInfo(line) {
+        let hash = getInfoFromLine(line, MINER_DEVICE_INFO);
+
+        if(hash) { return hash;}
+        return null;
+    }
+
     startMinerInstance () {
         console.log("Attempting to start miner...")
         //get the proper OS miner exe
@@ -46,7 +55,15 @@ module.exports = class Miner {
             //if we still have an active sender, send it a reply
             if(this.sender) {
                 //convert data from ascii to text
-                this.sender.send('update-miner-output', this.asciiToString(data));
+                //is this a device info line?  if so update
+                let line = this.asciiToString(data);
+                let deviceUpdate = this.getDeviceInfo(line);
+                if(deviceUpdate && deviceUpdate.type === 'device') {
+                    this.sender.send('device-update', deviceUpdate);
+                }
+
+                // send the new output to listeners
+                this.sender.send('update-miner-output', line);
             }
         });
     
