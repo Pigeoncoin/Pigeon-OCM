@@ -12,10 +12,19 @@ body{
 
 body {
     background-color:#6290E7;
+    overflow: hidden;
+}
+
+.miner-config {
+    padding: 0px 0px 10px 0px;
 }
 
 .miner-address {
     width: 500px;
+}
+
+.buttons button{
+    margin: 0px 10px 0px 0px;
 }
 
 .minerOutputList {
@@ -31,4 +40,8 @@ body {
     height: 300px;
     background-color:white;
     overflow:auto;
+}
+
+.console {
+    margin: 10px 0px 10px 0px;
 }

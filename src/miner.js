@@ -36,15 +36,7 @@ module.exports = class Miner {
                 exe = "pigeonminer.exe"
                 break;
         }
-         /*
-        let args = [
-            '--algo=x16s',
-            '--url=stratum+tcp://pool.pigeoncoin.org:3663', 
-            '--user=PMvTkNxxJqyXb83uiDsMtEm4UGRgbn4z5e',
-            '--pass=x',
-            '--donate=7.0'
-        ];
-        */
+
         let args = this.convertToMinerArgs();
         let daemon = spawn(path.join(global.appRootDir+`/${exe}`), args);
     
