@@ -71,7 +71,7 @@ class App extends Component {
           <button onClick={this.onStartMining}>Start Mining</button>
           <button onClick={this.onToggleConsole}>Toggle Console</button>
         </div>
-        <MinerInfo />
+        <MinerInfo devices={this.state.devices} />
         {this.state.showConsole ? <Console output={this.state.output} /> : "" }
       </div>
     );
