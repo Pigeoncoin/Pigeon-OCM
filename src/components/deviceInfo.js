@@ -10,7 +10,7 @@ module.exports = class DeviceInfo extends Component {
     render() {
         return (
             <div className="device-info">
-                <h3 className="device-name">{this.props.device.name}</h3>
+                <h3 className="device-name">{this.props.device.deviceName}</h3>
                 <h3 className="device-name">{this.props.device.getAverageHashRate}</h3>
             </div>
         );
