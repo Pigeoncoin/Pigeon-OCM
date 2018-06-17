@@ -5,12 +5,11 @@ const Utils = require('../src/utils.js');
 //miner output - share line
 const shareLine = "[2018-06-14 06:23:37] accepted: 1202/1203 (diff 0.050), 8997.73 kH/s yes!";
 const shareObject = {
-    type: 'share',
     timestamp: "[2018-06-14 06:23:37]",
     acceptedShares: "1202",
     totalShares: "1203",
     diff: "0.050",
-    hashRate: {
+    hashrate: {
         timestamp:"[2018-06-14 06:23:37]", 
         hashrate:8997730
     },
@@ -20,15 +19,15 @@ const shareObject = {
 //miner output - device info line
 const deviceLine = "[2018-06-14 06:24:24] GPU #0: GeForce GTX 1070, 8795.55 kH/s";
 const deviceLineObject =  {
-    type: 'device',
     deviceId: "GPU #0",
-    name: "GeForce GTX 1070",
-    hashRate: {
-        timestamp: "[2018-06-14 06:24:24]", 
-        hashrate: 8795550
-    }
+    deviceName: "GeForce GTX 1070",
+    rates: [
+        {
+            timestamp: "[2018-06-14 06:24:24]", 
+            hashrate: 8795550
+        }
+    ]
 };
-
 //HashRate object
 const hashRateObj1 = {
     timestamp: "[2018-06-14 06:24:24]",
@@ -58,6 +57,7 @@ const deviceObject = {
     rates: []
 };
 
+//device object with rates
 const deviceObjectRates = {
     deviceId: "GPU #0",
     deviceName: "GeForce GTX 1070",

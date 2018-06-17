@@ -34,6 +34,24 @@ class Device {
         });
     }
 }
+//hashrate should be a HashRate object
+class Share {
+    constructor(timestamp, acceptedShares, totalShares, diff, hashrate, valid) {
+        this.timestamp = timestamp;
+        this.acceptedShares = acceptedShares;
+        this.totalShares = totalShares;
+        this.diff = diff;
+        (hashrate instanceof HashRate) ? this.hashrate = hashrate : this.hashrate = new HashRate(timestamp, hashrate);
+        this.valid = valid;
+    }
+
+    isValid() {
+        if(this.valid === "yes") {
+            return true;
+        }
+        return false;
+    }
+}
 
 //accepts timestamp string and hashrate + units string
 class HashRate {
@@ -58,39 +76,38 @@ function getInfoFromLine(line, regex) {
         Group 5.	57-64	`8997.73`
         Group 6.	65-69	`kH/s`
         Group 7.	70-73	`yes`
-    */
-    //this is a share
-    if(line.indexOf("accepted: ") >= 0 && values.length == 8) {
-        return {
-            type: 'share',
+
+        {
             timestamp: values[1],
             acceptedShares: values[2],
             totalShares: values[3],
             diff: values[4],
             hashRate: new HashRate(values[1], `${values[5]} ${values[6]}`),
             valid: values[7]
-        };
+        }
+    */
+    //this is a share
+    if(line.indexOf("accepted: ") >= 0 && values.length == 8) {
+        return new Share(values[1], values[2], values[3], values[4], new HashRate(values[1], `${values[5]} ${values[6]}`),values[7]);
     }
 
     /*
     Full match	74-134	`[2018-06-14 20:22:39] GPU #0: GeForce GTX 1070, 8815.84 kH/s`
-        Group 1.	n/a	`2018-06-14 20:22:39`
+        Group 1.	n/a	`[2018-06-14 20:22:39]`
         Group 2.	n/a	`GPU #0`
         Group 3.	n/a	`GeForce GTX 1070`
         Group 4.	n/a	`8815.84`
         Group 5.	n/a	`kH/s`
-    */
-    // device status
-    // returns a Device object
-    if(line.indexOf("GPU #") >= 0 && values.length == 6) {
         return {
-            type: 'device',
             deviceId: values[2],
             name: values[3],
             hashRate: new HashRate(values[1], `${values[4]} ${values[5]}`),
         };
-        let dev = new Device(values[2], values[3]);
-        dev.addHashRate(values[1], `${values[4]} ${values[5]}`);
+    */
+    // device status
+    // returns a Device object
+    if(line.indexOf("GPU #") >= 0 && values.length == 6) {
+        let dev = new Device(values[2], values[3], new HashRate(values[1], `${values[4]} ${values[5]}`));
         return dev;
     }
 
