@@ -5,11 +5,14 @@
   "main": "app.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "electron": "electron ."
+    "electron": "electron .",
+    "test": "mocha"
   },
   "author": "Pigeoncoin",
   "devDependencies": {
-    "electron": "^2.0.2"
+    "chai": "^4.1.2",
+    "electron": "^2.0.2",
+    "mocha": "^5.2.0"
   },
   "dependencies": {
     "babel-core": "^6.24.0",

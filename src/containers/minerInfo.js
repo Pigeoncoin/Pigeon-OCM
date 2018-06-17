@@ -10,8 +10,7 @@ module.exports = class MinerInfo extends Component {
     }
 
     renderDevices() {
-        if(this.props.devices){ console.log("recievecxd devices props")}
-        if(!this.props.devices) {
+        if(this.props.devices[0] === null) {
             return <h3>No device information to display yet...</h3>
         } else {
             return this.props.devices.map(dev => {

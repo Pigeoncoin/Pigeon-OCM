@@ -6,7 +6,7 @@ const MainWindow = require('./app/MainWindow');
 const Miner = require('./src/miner');
 global.appRootDir = path.resolve(__dirname);
 
-const { Device, HashRate, getInfoFromLine, getRateInHash} = require('./src/Utils');
+const { Device, HashRate, getInfoFromLine, getRateInHash} = require('./src/utils');
 
 const mainConfig = {
     height:640,
@@ -21,6 +21,7 @@ const mainConfig = {
 
 let minerConfig = {
     algo:"x16s",
+    intensity: "18",
     url:"stratum+tcp://pool.pigeoncoin.org:3663",
     user: null, //PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG
     pass:"x",
@@ -46,9 +47,6 @@ app.on('ready', () => {
     const iconPath = path.join(__dirname, `/src/assets/${iconName}`);
     tray = new AppTray(iconPath, mainWindow);
 });
-
-
-
 
 ipcMain.on('start-mining', (event, run) => {
     console.log('received start-mining message');
