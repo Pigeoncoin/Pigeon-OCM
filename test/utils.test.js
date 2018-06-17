@@ -30,10 +30,11 @@ const deviceLineObject =  {
 };
 
 //HashRate object
-const hashRateObject = {
+const hashRateObj1 = {
     timestamp: "[2018-06-14 06:24:24]",
     hashrate: 8795550
 };
+
 
 //test hashes
 const hash1 = [323, "H/s"];
@@ -46,6 +47,8 @@ const hash4 = [85.55, "mH/s"];
 const hash4a = 85550000;
 const hash5 = [8795.55,"mH/s"];
 const hash5a = 8795550000;
+const hash6 = "8795.55 kH/s";
+const hash7 = "235.55 H/s";
 
 
 //blank device object
@@ -75,16 +78,22 @@ const deviceObjectRates = {
 };
 
 describe('Test Utils.js', function () {
-    it('should return the proper hash in H/s from given inputs', function () {
-        assert.equal(Utils.getRateInHash(hash1[0], hash1[1]), hash1a);
-        assert.equal(Utils.getRateInHash(hash2[0], hash2[1]), hash2a);
-        assert.equal(Utils.getRateInHash(hash3[0], hash3[1]), hash3a);
-        assert.equal(Utils.getRateInHash(hash4[0], hash4[1]), hash4a);
-        assert.equal(Utils.getRateInHash(hash5[0], hash5[1]), hash5a);
+    describe('Test getRateInHash method', function() {
+        it('should return the proper hash in H/s from given inputs', function () {
+            assert.equal(Utils.getRateInHash(hash1[0], hash1[1]), hash1a);
+            assert.equal(Utils.getRateInHash(hash2[0], hash2[1]), hash2a);
+            assert.equal(Utils.getRateInHash(hash3[0], hash3[1]), hash3a);
+            assert.equal(Utils.getRateInHash(hash4[0], hash4[1]), hash4a);
+            assert.equal(Utils.getRateInHash(hash5[0], hash5[1]), hash5a);
+            assert.equal(Utils.getRateInHash(hash6), 8795550);
+            assert.equal(Utils.getRateInHash(hash7), 235.55);
+
+        });
     });
+    
     describe('Test HashRate class', function () {
         it('should return a valid HashRate object', function () {
-            assert.deepEqual(hashRateObject, new Utils.HashRate("[2018-06-14 06:24:24]", "8795.55 kH/s"));
+            assert.deepEqual(hashRateObj1, new Utils.HashRate("[2018-06-14 06:24:24]", "8795.55 kH/s"));
         });
     });
     

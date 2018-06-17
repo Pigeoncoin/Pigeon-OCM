@@ -2,11 +2,16 @@
 const MINER_SHARE = /(\[.*?\])\s+accepted:\s+(\d+)\/(\d+)\s\(diff (\d+\.\d+)\).*?(\d+\.\d+)\s+((?:k|m|g)H\/s)\s(yes|booooo)/;
 const MINER_DEVICE_INFO = /(\[.*?\])\s+(GPU\s#\d+):\s+(.*?),\s+(\d+.\d+)\s((?:g|m|k|h)H\/s)/;
 
+//GPU #0, GTX NVidia 1070, HashRate object
 class Device {
-    constructor(deviceId, deviceName) {
+    constructor(deviceId, deviceName, hashrate) {
         this.deviceId = deviceId;
         this.deviceName = deviceName;
         this.rates = [];  //array of hashrate objects
+        //if we were provided a hashrate we can add it in
+        if(hashrate instanceof HashRate){
+            this.rates = [...this.rates,hashrate];
+        }
     }
 
     //stores up to 1 million entries
@@ -30,6 +35,7 @@ class Device {
     }
 }
 
+//accepts timestamp string and hashrate + units string
 class HashRate {
     constructor(timestamp, hashrate) {
         this.timestamp = timestamp;
@@ -75,6 +81,7 @@ function getInfoFromLine(line, regex) {
         Group 5.	n/a	`kH/s`
     */
     // device status
+    // returns a Device object
     if(line.indexOf("GPU #") >= 0 && values.length == 6) {
         return {
             type: 'device',
@@ -82,27 +89,38 @@ function getInfoFromLine(line, regex) {
             name: values[3],
             hashRate: new HashRate(values[1], `${values[4]} ${values[5]}`),
         };
+        let dev = new Device(values[2], values[3]);
+        dev.addHashRate(values[1], `${values[4]} ${values[5]}`);
+        return dev;
     }
 
-    return values;
+    //something didnt work...
+    return null;
 }
 
 //looks for case where only a single string containing rate and units is passed
 // but handles separate as well,  19999 kH/s,  1023 mH/s, etc
+//this should be called whenever creating a new HashRate
 function getRateInHash(rate, units) {
-    //if we are only passed 1 arg lets assume its the amoutn and units
+    //if we are only passed 1 arg lets assume its the amount and units
     let hashrate = null;
     let unitStr = null;
 
+    //they passed a rate number and no units
     if(!units){
-        let parts = rate.split(" ");
-        hashrate = parts[0];
-        unitStr = parts[1];
+        if(!isNaN(rate)) { //they passes in a number, so just return it
+            return rate;
+        } else {
+            let parts = rate.split(" ");
+            if(parts.length!=2) { return -2; } //can't proceed
+            hashrate = parseFloat(parts[0]);
+            unitStr = parts[1];
+        }
     } else {
-        hashrate = rate;
+        hashrate = parseFloat(rate);
         unitStr = units;
     }
-    
+
     switch(unitStr) {
         case "gH/s":
             return hashrate * 1000000000;
@@ -113,6 +131,9 @@ function getRateInHash(rate, units) {
         case "H/s":
             return hashrate;
     }
+
+    //if we somehow made it to here, fail
+    //return null;
 }
 
 module.exports = { Device, HashRate, getInfoFromLine, getRateInHash, MINER_SHARE,MINER_DEVICE_INFO};
