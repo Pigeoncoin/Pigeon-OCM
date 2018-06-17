@@ -10,6 +10,7 @@ import store from './reducers';
 import MinerConfig from './containers/minerConfig';
 import MinerInfo from './containers/minerInfo';
 import Console from './components/console';
+import Utils from './utils';
 
 class App extends Component {
   constructor(props) {
@@ -38,9 +39,16 @@ class App extends Component {
       
       //does devices exist
       if(this.state.devices[device]) {
-        this.state.devices[device].rates = [...his.state.devices[device].rates, device.hashRate];
+        //get device
+        let curDev = this.state.devices[device];
+        //update the rates array
+        curDev.rates = [...curDev.rates,...device.rates]
+        let devices = this.state.devices;
+        devices[device] = curDev;
+        //now save the new devices array to state
+        this.setState(devices: devices);
       } else {
-        this.setState({...this.state.devices,device});
+        this.setState(devices:[...this.state.devices,device]);
       }
     });
   }

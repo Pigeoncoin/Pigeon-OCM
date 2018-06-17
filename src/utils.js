@@ -1,6 +1,9 @@
 
-const MINER_SHARE = /(\[.*?\])\s+accepted:\s+(\d+)\/(\d+)\s\(diff (\d+\.\d+)\).*?(\d+\.\d+)\s+((?:k|m|g)H\/s)\s(yes|booooo)/;
-const MINER_DEVICE_INFO = /(\[.*?\])\s+(GPU\s#\d+):\s+(.*?),\s+(\d+.\d+)\s((?:g|m|k|h)H\/s)/;
+const searchPatterns = [
+    /(\[.*?\])\s+accepted:\s+(\d+)\/(\d+)\s\(diff (\d+\.\d+)\).*?(\d+\.\d+)\s+((?:k|m|g)H\/s)\s(yes|booooo)/,
+    /(\[.*?\])\s+(GPU\s#\d+):\s+(.*?),\s+(\d+.\d+)\s((?:g|m|k|h)H\/s)/
+];
+
 
 //GPU #0, GTX NVidia 1070, HashRate object
 class Device {
@@ -62,56 +65,61 @@ class HashRate {
 }
 
 //returns array of capture groups
-function getInfoFromLine(line, regex) {
+function getInfoFromLine(line) {
     //we only care about speccific lines - shares and device updates
-    let values = line.match(regex);
-    if(values.length == 0) { return null;}
-    //optionally return an object if we can determine what line type it is
-    /*
-        Full match	1-73	`[2018-06-14 06:23:37] accepted: 1202/1203 (diff 0.050), 8997.73 kH/s yes`
-        Group 1.	2-21	`2018-06-14 06:23:37`
-        Group 2.	33-37	`1202`
-        Group 3.	38-42	`1203`
-        Group 4.	49-54	`0.050`
-        Group 5.	57-64	`8997.73`
-        Group 6.	65-69	`kH/s`
-        Group 7.	70-73	`yes`
+    //loop through all search patterns and return the appropriate information
+    
+    for(pattern of searchPatterns){
+        let values = line.match(pattern);
 
-        {
-            timestamp: values[1],
-            acceptedShares: values[2],
-            totalShares: values[3],
-            diff: values[4],
-            hashRate: new HashRate(values[1], `${values[5]} ${values[6]}`),
-            valid: values[7]
+        if(!values) { continue; }
+        //optionally return an object if we can determine what line type it is
+        /*
+            Full match	1-73	`[2018-06-14 06:23:37] accepted: 1202/1203 (diff 0.050), 8997.73 kH/s yes`
+            Group 1.	2-21	`2018-06-14 06:23:37`
+            Group 2.	33-37	`1202`
+            Group 3.	38-42	`1203`
+            Group 4.	49-54	`0.050`
+            Group 5.	57-64	`8997.73`
+            Group 6.	65-69	`kH/s`
+            Group 7.	70-73	`yes`
+
+            {
+                timestamp: values[1],
+                acceptedShares: values[2],
+                totalShares: values[3],
+                diff: values[4],
+                hashRate: new HashRate(values[1], `${values[5]} ${values[6]}`),
+                valid: values[7]
+            }
+        */
+        //this is a share
+        if(line.indexOf("accepted: ") >= 0 && values.length == 8) {
+            return new Share(values[1], values[2], values[3], values[4], new HashRate(values[1], `${values[5]} ${values[6]}`),values[7]);
         }
-    */
-    //this is a share
-    if(line.indexOf("accepted: ") >= 0 && values.length == 8) {
-        return new Share(values[1], values[2], values[3], values[4], new HashRate(values[1], `${values[5]} ${values[6]}`),values[7]);
+
+        /*
+        Full match	74-134	`[2018-06-14 20:22:39] GPU #0: GeForce GTX 1070, 8815.84 kH/s`
+            Group 1.	n/a	`[2018-06-14 20:22:39]`
+            Group 2.	n/a	`GPU #0`
+            Group 3.	n/a	`GeForce GTX 1070`
+            Group 4.	n/a	`8815.84`
+            Group 5.	n/a	`kH/s`
+            return {
+                deviceId: values[2],
+                name: values[3],
+                hashRate: new HashRate(values[1], `${values[4]} ${values[5]}`),
+            };
+        */
+        // device status
+        // returns a Device object
+        if(line.indexOf("GPU #") >= 0 && values.length == 6) {
+            let dev = new Device(values[2], values[3], new HashRate(values[1], `${values[4]} ${values[5]}`));
+            return dev;
+        }
     }
 
-    /*
-    Full match	74-134	`[2018-06-14 20:22:39] GPU #0: GeForce GTX 1070, 8815.84 kH/s`
-        Group 1.	n/a	`[2018-06-14 20:22:39]`
-        Group 2.	n/a	`GPU #0`
-        Group 3.	n/a	`GeForce GTX 1070`
-        Group 4.	n/a	`8815.84`
-        Group 5.	n/a	`kH/s`
-        return {
-            deviceId: values[2],
-            name: values[3],
-            hashRate: new HashRate(values[1], `${values[4]} ${values[5]}`),
-        };
-    */
-    // device status
-    // returns a Device object
-    if(line.indexOf("GPU #") >= 0 && values.length == 6) {
-        let dev = new Device(values[2], values[3], new HashRate(values[1], `${values[4]} ${values[5]}`));
-        return dev;
-    }
-
-    //something didnt work...
+    //no pattern found
     return null;
 }
 
@@ -153,4 +161,4 @@ function getRateInHash(rate, units) {
     //return null;
 }
 
-module.exports = { Device, HashRate, getInfoFromLine, getRateInHash, MINER_SHARE,MINER_DEVICE_INFO};
+module.exports = { Device, HashRate, getInfoFromLine, getRateInHash};

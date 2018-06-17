@@ -2,7 +2,7 @@ const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const path = require('path');
 const { spawn } = require('child_process');
-const { HashRate, getInfoFromLine, MINER_DEVICE_INFO } = require('./utils');
+const { HashRate, getInfoFromLine } = require('./utils');
 
 module.exports = class Miner {
     constructor(config, sender) {
@@ -24,7 +24,7 @@ module.exports = class Miner {
     
     //return object from a device update line - [2018-06-14 06:24:24] GPU #0: GeForce GTX 1070, 8795.55 kH/s
     getDeviceInfo(line) {
-        let hash = getInfoFromLine(line, MINER_DEVICE_INFO);
+        let hash = getInfoFromLine(line);
 
         if(hash) { return hash;}
         return null;
@@ -59,7 +59,7 @@ module.exports = class Miner {
                 let line = this.asciiToString(data);
                 let deviceUpdate = this.getDeviceInfo(line);
                 console.log("created device update: " + JSON.stringify(deviceUpdate));
-                if(deviceUpdate && deviceUpdate.type === 'device') {
+                if(deviceUpdate) {
                     this.sender.send('device-update', deviceUpdate);
                 }
 

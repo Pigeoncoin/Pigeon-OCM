@@ -99,10 +99,10 @@ describe('Test Utils.js', function () {
     
     describe('Test getInfoFromLine method', function () {
         it('should return an object for a share line', function (){
-            assert.deepEqual(shareObject, Utils.getInfoFromLine(shareLine, Utils.MINER_SHARE));
+            assert.deepEqual(shareObject, Utils.getInfoFromLine(shareLine));
         });
         it('should return a device object for a device update line', function () {
-            assert.deepEqual(deviceLineObject, Utils.getInfoFromLine(deviceLine, Utils.MINER_DEVICE_INFO));
+            assert.deepEqual(deviceLineObject, Utils.getInfoFromLine(deviceLine));
         });
     });
 
