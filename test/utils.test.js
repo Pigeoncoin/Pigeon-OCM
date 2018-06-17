@@ -2,7 +2,7 @@ const assert = require('assert');
 const Utils = require('../src/utils.js');
 
 
-
+//miner output - share line
 const shareLine = "[2018-06-14 06:23:37] accepted: 1202/1203 (diff 0.050), 8997.73 kH/s yes!";
 const shareObject = {
     type: 'share',
@@ -16,8 +16,10 @@ const shareObject = {
     },
     valid: "yes"
 };
+
+//miner output - device info line
 const deviceLine = "[2018-06-14 06:24:24] GPU #0: GeForce GTX 1070, 8795.55 kH/s";
-const deviceObject =  {
+const deviceLineObject =  {
     type: 'device',
     deviceId: "GPU #0",
     name: "GeForce GTX 1070",
@@ -27,11 +29,13 @@ const deviceObject =  {
     }
 };
 
+//HashRate object
 const hashRateObject = {
     timestamp: "[2018-06-14 06:24:24]",
     hashrate: 8795550
 };
 
+//test hashes
 const hash1 = [323, "H/s"];
 const hash1a = 323;
 const hash2 = [400, "kH/s"];
@@ -43,6 +47,32 @@ const hash4a = 85550000;
 const hash5 = [8795.55,"mH/s"];
 const hash5a = 8795550000;
 
+
+//blank device object
+const deviceObject = {
+    deviceId: "GPU #0",
+    deviceName: "GeForce GTX 1070",
+    rates: []
+};
+
+const deviceObjectRates = {
+    deviceId: "GPU #0",
+    deviceName: "GeForce GTX 1070",
+    rates: [
+        {
+            timestamp: "[2018-06-14 06:24:24]",
+            hashrate: 8795550
+        },
+        {
+            timestamp: "[2018-06-14 06:34:24]",
+            hashrate: 8895250
+        },
+        {
+            timestamp: "[2018-06-14 07:24:24]",
+            hashrate: 9995860
+        }
+    ]
+};
 
 describe('Test Utils.js', function () {
     it('should return the proper hash in H/s from given inputs', function () {
@@ -63,8 +93,24 @@ describe('Test Utils.js', function () {
             assert.deepEqual(shareObject, Utils.getInfoFromLine(shareLine, Utils.MINER_SHARE));
         });
         it('should return a device object for a device update line', function () {
-            assert.deepEqual(deviceObject, Utils.getInfoFromLine(deviceLine, Utils.MINER_DEVICE_INFO));
+            assert.deepEqual(deviceLineObject, Utils.getInfoFromLine(deviceLine, Utils.MINER_DEVICE_INFO));
         });
+    });
+
+    describe('Test Device Class', function() {
+        it('should return a new Device object', function () {
+            assert.deepEqual(deviceObject, new Utils.Device("GPU #0", "GeForce GTX 1070"));
+        });
+
+        it('should return a Device object with 3 hash rates', function () {
+            let dev1 = new Utils.Device("GPU #0", "GeForce GTX 1070");
+            dev1.addHashRate("[2018-06-14 06:24:24]", "8795.55 kH/s");
+            dev1.addHashRate("[2018-06-14 06:34:24]", "8895.25 kH/s");
+            dev1.addHashRate("[2018-06-14 07:24:24]", "9995.86 kH/s");
+            
+            assert.deepEqual(dev1, deviceObjectRates);
+        });
+
     });
     
 });
