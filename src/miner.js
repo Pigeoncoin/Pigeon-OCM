@@ -58,8 +58,7 @@ module.exports = class Miner {
                 //is this a device info line?  if so update
                 let line = this.asciiToString(data);
                 let deviceUpdate = this.getDeviceInfo(line);
-                console.log("created device update: " + JSON.stringify(deviceUpdate));
-                if(deviceUpdate) {
+                if(deviceUpdate isntanceof Device) {
                     this.sender.send('device-update', deviceUpdate);
                 }
 

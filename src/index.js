@@ -46,9 +46,9 @@ class App extends Component {
         let devices = this.state.devices;
         devices[device] = curDev;
         //now save the new devices array to state
-        this.setState(devices: devices);
+        this.setState({devices: devices});
       } else {
-        this.setState(devices:[...this.state.devices,device]);
+        this.setState({devices:[...this.state.devices,device]});
       }
     });
   }
