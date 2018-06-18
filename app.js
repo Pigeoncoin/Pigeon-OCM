@@ -55,7 +55,8 @@ ipcMain.on('start-mining', (event, run) => {
 
     miner.sender = event.sender;
     if(run){
-        miner.startMinerInstance();
+        //miner.startMinerInstance();
+        miner.startDebugInstance();
     }
 });
 
