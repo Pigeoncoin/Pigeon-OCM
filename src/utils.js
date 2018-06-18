@@ -18,7 +18,7 @@ class Device {
     }
 
     //stores up to 1 million entries
-    addHashRate(timestamp, hashrate) {
+    addHashrate(timestamp, hashrate) {
         //remove the first 10000 aka oldest
         if(this.rates.length == 1000000) {
             for(let i = 0; i< 10000; i++)
@@ -30,11 +30,29 @@ class Device {
     }
 
     // average all the hash amounts.  we might need a large number
-    getAverageHashRate() {
-        let total = 0;
-        return this.rates.map((cur) => {
-            total += cur.rate
+    //return an object,  {H/s, k/mH/s}
+    getAverageHashrate() {
+        let total = 0.0;
+        this.rates.map((cur) => {
+            total += cur.hashrate
         });
+        total = (total / this.rates.length).toFixed(2);
+
+        //now we need to convert to a kH/s or mH/s
+        let human = null;
+        let units = null;
+        if(total / 1000000 > 0) { 
+            human = (total / 1000000).toFixed(2);
+            units = "mH/s";
+        }else if (total / 1000 > 0){
+            human = (total / 1000).toFixed(2);
+            units = "kH/s";
+        }else {
+            human = total;
+            units = "H/s";
+        }
+        let str = `${human} ${units}`;
+        return [parseFloat(total), str];
     }
 }
 //hashrate should be a HashRate object

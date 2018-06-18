@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Device} from '../utils';
 
 module.exports = class DeviceInfo extends Component {
     constructor(props) {
@@ -10,8 +11,8 @@ module.exports = class DeviceInfo extends Component {
     render() {
         return (
             <div className="device-info">
-                <h3 className="device-name">{this.props.device.deviceName}</h3>
-                <h3 className="device-name">{this.props.device.getAverageHashRate}</h3>
+                <h3 className="device-name">Device:{this.props.device.deviceName}</h3>
+                <h3 className="device-name">Hashrate: {this.props.device.getAverageHashrate}</h3>
             </div>
         );
     };

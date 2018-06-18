@@ -113,11 +113,20 @@ describe('Test Utils.js', function () {
 
         it('should return a Device object with 3 hash rates', function () {
             let dev1 = new Utils.Device("GPU #0", "GeForce GTX 1070");
-            dev1.addHashRate("[2018-06-14 06:24:24]", "8795.55 kH/s");
-            dev1.addHashRate("[2018-06-14 06:34:24]", "8895.25 kH/s");
-            dev1.addHashRate("[2018-06-14 07:24:24]", "9995.86 kH/s");
+            dev1.addHashrate("[2018-06-14 06:24:24]", "8795.55 kH/s");
+            dev1.addHashrate("[2018-06-14 06:34:24]", "8895.25 kH/s");
+            dev1.addHashrate("[2018-06-14 07:24:24]", "9995.86 kH/s");
             
             assert.deepEqual(dev1, deviceObjectRates);
+        });
+
+        it('should return the correct average of hashrates', function() {
+            let dev1 = new Utils.Device("GPU #0", "GeForce GTX 1070");
+            dev1.addHashrate("[2018-06-14 06:24:24]", "8795.55 kH/s");
+            dev1.addHashrate("[2018-06-14 06:34:24]", "8895.25 kH/s");
+            dev1.addHashrate("[2018-06-14 07:24:24]", "9995.86 kH/s");
+
+            assert.deepEqual(dev1.getAverageHashrate(), [9228886.67, '9.23 mH/s']);
         });
 
     });
