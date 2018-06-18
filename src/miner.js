@@ -2,7 +2,7 @@ const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const path = require('path');
 const { spawn } = require('child_process');
-const { HashRate, getInfoFromLine } = require('./utils');
+const { Device, Share, HashRate, getInfoFromLine } = require('./utils');
 
 module.exports = class Miner {
     constructor(config, sender) {
@@ -58,7 +58,7 @@ module.exports = class Miner {
                 //is this a device info line?  if so update
                 let line = this.asciiToString(data);
                 let deviceUpdate = this.getDeviceInfo(line);
-                if(deviceUpdate isntanceof Device) {
+                if(deviceUpdate instanceof Device) {
                     this.sender.send('device-update', deviceUpdate);
                 }
 
