@@ -32,19 +32,12 @@ class App extends Component {
 
     //recieve updates from the miner
     ipcRenderer.on('update-miner-output', (event, data) => {
-      //console.log(`received message: ${event} with ${data}`);
       this.setState({output: [data, ...this.state.output]});
     });
 
     ipcRenderer.on('device-update', (event, device) => {
       //do we already have this device in the list?
       //add if not, otherwise update info
-      
-
-      //get copy of state.devices 
-      //update specific devicec
-      //set state.devices to new device list
-
 
       //does devices exist
       let allDevs = this.state.devices;
@@ -58,7 +51,24 @@ class App extends Component {
       }else {
           this.setState({devices: [...this.state.devices, device]});
       }
-      
+    });
+
+    //we have new device information
+    ipcRenderer.on('device-info-update', (event, deviceInfo) => {
+      //does devices exist
+      let allDevs = this.state.devices;
+      let idx = this.getDeviceIndexFromList(deviceInfo.deviceId);
+      if(idx >= 0) {
+        let updatedDevice = allDevs[idx];
+        updatedDevice.clockSpeed = deviceInfo.clockSpeed;
+        updatedDevice.efficiency = deviceInfo.efficiency;
+        updatedDevice.power = deviceInfo.power;
+        updatedDevice.temp = deviceInfo.temp;
+        updatedDevice.fan = deviceInfo.fan;
+        //reassign to list
+        allDevs[idx] = updatedDevice;
+        this.setState({devicecs: allDevs});
+      }
     });
   }
 

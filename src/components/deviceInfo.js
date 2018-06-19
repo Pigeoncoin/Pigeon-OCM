@@ -7,7 +7,12 @@ module.exports = class DeviceInfo extends Component {
 
         this.state = {
             deviceName: "",
-            avgHash: ""
+            avgHash: "",
+            clockSpeed: "",
+            efficiency: "",
+            power: "",
+            temp: "",
+            fan: ""
         };
     }
 
@@ -16,17 +21,31 @@ module.exports = class DeviceInfo extends Component {
     }
 
     update() {
+        console.log("Rendered got deviceInfo: " + JSON.stringify(this.props.device))
         let device = new Device(this.props.device.deviceId, this.props.device.deviceName);
         device.rates = this.props.device.rates;
         let res = device.getAverageHashrate();
-        this.setState({deviceName: device.deviceName, avgHash: res[1]});
+        this.setState({
+            deviceName: this.props.device.deviceName, 
+            avgHash: res[1],
+            clockSpeed: this.props.device.clockSpeed,
+            efficiency: this.props.device.efficiency,
+            power: this.props.device.power,
+            temp: this.props.device.temp,
+            fan: this.props.device.fan
+        });
     }
 
     render() {
         return (
             <div className="device-info">
-                <h3 className="device-name">Device: {this.state.deviceName}</h3>
+                <h2 className="device-name">Device: {this.state.deviceName}</h2>
                 <h3 className="device-hashrate">Hashrate: {this.state.avgHash}</h3>
+                <div className="device-clockSpeed">Clock Speed: {this.state.clockSpeed}</div>
+                <div className="device-efficiency">Efficiency: {this.state.efficiency}</div>
+                <div className="device-power">Power: {this.state.power}</div>
+                <div className="device-temp">Temp: {this.state.temp}</div>
+                <div className="device-fan">Fan: {this.state.fan}</div>
             </div>
         );
     }

@@ -26,7 +26,11 @@ const deviceLineObject =  {
             timestamp: "[2018-06-14 06:24:24]", 
             hashrate: 8795550
         }
-    ]
+    ],
+    processor: "",
+    electricity: "",
+    temp: "",
+    fan: ""
 };
 //HashRate object
 const hashRateObj1 = {
@@ -54,7 +58,11 @@ const hash7 = "235.55 H/s";
 const deviceObject = {
     deviceId: "GPU #0",
     deviceName: "GeForce GTX 1070",
-    rates: []
+    rates: [],
+    processor: "",
+    electricity: "",
+    temp: "",
+    fan: ""
 };
 
 //device object with rates
@@ -74,7 +82,11 @@ const deviceObjectRates = {
             timestamp: "[2018-06-14 07:24:24]",
             hashrate: 9995860
         }
-    ]
+    ],
+    processor: "",
+    electricity: "",
+    temp: "",
+    fan: ""
 };
 
 describe('Test Utils.js', function () {
@@ -122,11 +134,11 @@ describe('Test Utils.js', function () {
 
         it('should return the correct average of hashrates', function() {
             let dev1 = new Utils.Device("GPU #0", "GeForce GTX 1070");
-            dev1.addHashrate("[2018-06-14 06:24:24]", "8795.55 kH/s");
-            dev1.addHashrate("[2018-06-14 06:34:24]", "8895.25 kH/s");
-            dev1.addHashrate("[2018-06-14 07:24:24]", "9995.86 kH/s");
+            dev1.addHashrate("[2018-06-14 06:24:24]", "87950.55 kH/s");
+            dev1.addHashrate("[2018-06-14 06:34:24]", "88950.25 kH/s");
+            dev1.addHashrate("[2018-06-14 07:24:24]", "99950.86 kH/s");
 
-            assert.deepEqual(dev1.getAverageHashrate(), [9228886.67, '9.23 mH/s']);
+            assert.deepEqual(dev1.getAverageHashrate(), [92283886.67, '92.28 mH/s']);
         });
 
     });

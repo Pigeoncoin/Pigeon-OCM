@@ -2,7 +2,8 @@ const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const path = require('path');
 const { spawn } = require('child_process');
-const { Device, Share, HashRate, getInfoFromLine } = require('./utils');
+const { Device, DeviceInfo, Share, HashRate, getInfoFromLine } = require('./utils');
+const stripAnsi = require('strip-ansi');
 
 module.exports = class Miner {
     constructor(config, sender) {
@@ -47,9 +48,14 @@ module.exports = class Miner {
                     //convert data from ascii to text
                     //is this a device info line?  if so update
                     //let line = bob(lines[i]);
-                    let deviceUpdate = joe(lines[i]);
-                    if(deviceUpdate instanceof Device) {
-                        send.send('device-update', deviceUpdate);
+                    let line = lines[i];
+                    let update = getInfoFromLine(line);
+                    if(update instanceof Device) {
+                        send.send('device-update', update);
+                    }else if(update instanceof DeviceInfo){
+                        send.send('device-info-update', update);
+                    }else if(update instanceof Share){
+                        //do something maybe
                     }
     
                     // send the new output to listeners
@@ -81,16 +87,22 @@ module.exports = class Miner {
         let daemon = spawn(path.join(global.appRootDir+`/${exe}`), args);
     
         //listen for data fromt eh miner
+        daemon.stdout.setEncoding('utf8');
         daemon.stdout.on('data', (data) => {
             //console.log(`Received new miner data: ${data}`);
             //if we still have an active sender, send it a reply
             if(this.sender) {
+                console.log("sender")
                 //convert data from ascii to text
                 //is this a device info line?  if so update
-                let line = this.asciiToString(data);
-                let deviceUpdate = this.getDeviceInfo(line);
-                if(deviceUpdate instanceof Device) {
-                    this.sender.send('device-update', deviceUpdate);
+                let line = stripAnsi(data.toString());
+                let update = getInfoFromLine(line);
+                if(update instanceof Device) {
+                    this.sender.send('device-update', update);
+                }else if(update instanceof DeviceInfo){
+                    this.sender.send('device-info-update', update);
+                }else if(update instanceof Share){
+                    //do something maybe
                 }
 
                 // send the new output to listeners

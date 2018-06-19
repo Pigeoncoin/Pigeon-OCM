@@ -49,18 +49,14 @@ app.on('ready', () => {
 });
 
 ipcMain.on('start-mining', (event, run) => {
-    console.log('received start-mining message');
-
     //validate miner address?
-
     miner.sender = event.sender;
     if(run){
-        //miner.startMinerInstance();
-        miner.startDebugInstance();
+        miner.startMinerInstance();
+        //miner.startDebugInstance();
     }
 });
 
 ipcMain.on('update-miner-address', (event, address) => {
     miner.minerConfig.user = address;
-    //console.log('received new miner address: ' + address);
 });
