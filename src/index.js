@@ -26,10 +26,13 @@ class App extends Component {
 
     this.onAddressUpdate = this.onAddressUpdate.bind(this);
     this.onToggleConsole = this.onToggleConsole.bind(this);
+    this.getDeviceIndexFromList = this.getDeviceIndexFromList.bind(this);
+    //returns the index of the device
+    
 
     //recieve updates from the miner
     ipcRenderer.on('update-miner-output', (event, data) => {
-      console.log(`received message: ${event} with ${data}`);
+      //console.log(`received message: ${event} with ${data}`);
       this.setState({output: [data, ...this.state.output]});
     });
 
@@ -37,20 +40,36 @@ class App extends Component {
       //do we already have this device in the list?
       //add if not, otherwise update info
       
+
+      //get copy of state.devices 
+      //update specific devicec
+      //set state.devices to new device list
+
+
       //does devices exist
-      if(this.state.devices[device]) {
-        //get device
-        let curDev = this.state.devices[device];
-        //update the rates array
-        curDev.rates = [...curDev.rates,...device.rates]
-        let devices = this.state.devices;
-        devices[device] = curDev;
-        //now save the new devices array to state
-        this.setState({devices: devices});
-      } else {
-        this.setState({devices:[...this.state.devices,device]});
+      let allDevs = this.state.devices;
+      let idx = this.getDeviceIndexFromList(device.deviceId);
+      if(idx >= 0) {
+        let updatedDevice = allDevs[idx];
+        updatedDevice.rates = [...updatedDevice.rates, ...device.rates];
+        //reassign to list
+        allDevs[idx] = updatedDevice;
+        this.setState({devicecs: allDevs});
+      }else {
+          this.setState({devices: [...this.state.devices, device]});
       }
+      
     });
+  }
+
+  //get the index of the device from state.devices
+  getDeviceIndexFromList(deviceId) {
+    for(let i =0; i<this.state.devices.length; i++){
+      if(this.state.devices[i].deviceId === deviceId) {
+         return i;
+        }
+    }
+    return -1;
   }
 
   //receive updates from the address text field

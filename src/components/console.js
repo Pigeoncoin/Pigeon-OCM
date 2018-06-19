@@ -9,7 +9,6 @@ module.exports = class Console extends Component {
 
     renderLines(){
         return this.props.output.map((line, i) => {
-          console.log("line: "+line);
           return <li key={i} className="minerOutputLine">{line}</li>;
         });
       }

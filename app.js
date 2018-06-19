@@ -62,5 +62,5 @@ ipcMain.on('start-mining', (event, run) => {
 
 ipcMain.on('update-miner-address', (event, address) => {
     miner.minerConfig.user = address;
-    console.log('received new miner address: ' + address);
+    //console.log('received new miner address: ' + address);
 });

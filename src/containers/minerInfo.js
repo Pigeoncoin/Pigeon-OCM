@@ -13,8 +13,8 @@ module.exports = class MinerInfo extends Component {
         if(this.props.devices.length === 0) {
             return <h3>No device information to display yet...</h3>
         } else {
-            return this.props.devices.map(dev => {
-                return <DeviceInfo key={dev.deviceId} device={dev} />
+            return this.props.devices.map((dev,i) => {
+                return <DeviceInfo key={i} device={dev} />
             });
         }
     }
