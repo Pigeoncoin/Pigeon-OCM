@@ -10,7 +10,9 @@ import store from './reducers';
 import MinerConfig from './containers/minerConfig';
 import MinerInfo from './containers/minerInfo';
 import Console from './components/console';
+import PoolSelector from './components/poolSelector';
 import Utils from './utils';
+
 
 class App extends Component {
   constructor(props) {
@@ -21,15 +23,17 @@ class App extends Component {
       output: [],
       address: "",
       showConsole: false,
-      devices: []
+      devices: [],
+      pools: [],
+      isMining: false
     };
 
     this.onAddressUpdate = this.onAddressUpdate.bind(this);
     this.onToggleConsole = this.onToggleConsole.bind(this);
+    this.onStartMining = this.onStartMining.bind(this);
     this.getDeviceIndexFromList = this.getDeviceIndexFromList.bind(this);
     //returns the index of the device
     
-
     //recieve updates from the miner
     ipcRenderer.on('update-miner-output', (event, data) => {
       this.setState({output: [data, ...this.state.output]});
@@ -86,12 +90,14 @@ class App extends Component {
   onAddressUpdate(event) {
     this.setState({address: event.target.value});
     ipcRenderer.send('update-miner-address', event.target.value);
-    console.log("Updating address: " + event.target.value);
   }
 
   //receive "start mining" button press
   onStartMining() {
-    ipcRenderer.send('start-mining', true);
+    //toggle mining state
+    let start = !this.state.isMining;
+    this.setState({isMining: start})
+    ipcRenderer.send('start-mining', start);
   }
 
   //recieve toggle console button press
@@ -99,13 +105,17 @@ class App extends Component {
     this.setState({showConsole: !this.state.showConsole});
   }
   
+  onPoolSelect(url) {
+    ipcRenderer.send('update-pool-selection', url);
+  }
 
   render() {
     return (
       <div>
         <MinerConfig onAddressUpdate={this.onAddressUpdate} />
+        <PoolSelector onPoolSelect={this.onPoolSelect} />
         <div className="buttons">
-          <button onClick={this.onStartMining}>Start Mining</button>
+          <button onClick={this.onStartMining}>{this.state.isMining ? "Stop" : "Start"} Mining</button>
           <button onClick={this.onToggleConsole}>Toggle Console</button>
         </div>
         <MinerInfo devices={this.state.devices} />

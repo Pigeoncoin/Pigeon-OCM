@@ -16,11 +16,15 @@ body {
 }
 
 .miner-config {
-    padding: 0px 0px 10px 0px;
+    margin: 5px 0px 5px 0px;
 }
 
 .miner-address {
     width: 500px;
+}
+
+.pool-selector {
+    margin: 5px 0px 5px 0px;
 }
 
 .buttons button{

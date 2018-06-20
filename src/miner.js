@@ -9,6 +9,7 @@ module.exports = class Miner {
     constructor(config, sender) {
         this.minerConfig = config;
         this.sender = sender;
+        let daemon;
     }
 
     asciiToString(data){
@@ -19,7 +20,6 @@ module.exports = class Miner {
         let args = Object.keys(this.minerConfig).map((key) => {
             return `--${key}=${this.minerConfig[key]}`;
         });
-        console.log("args: " + args);
         return args;
     }
     
@@ -33,7 +33,6 @@ module.exports = class Miner {
 
     //debug function for testing
     startDebugInstance() {
-        console.log("starting debug instance instead of miner");
         const lines = require('./testdata');
 
         let i = 0;
@@ -42,7 +41,6 @@ module.exports = class Miner {
         let joe = this.getDeviceInfo;
         setInterval(function (){
             if(i<lines.length-1) {
-                //console.log(`Received new miner data: ${lines[i]}`);
                 //if we still have an active sender, send it a reply
                 if(send) {
                     //convert data from ascii to text
@@ -67,8 +65,11 @@ module.exports = class Miner {
         }, 1000);
     }
 
+    stopMinerInstance() {
+        this.daemon.kill();
+    }
+
     startMinerInstance () {
-        console.log("Attempting to start miner...")
         //get the proper OS miner exe
         let exe = null;
         switch(process.platform) {
@@ -84,15 +85,13 @@ module.exports = class Miner {
         }
 
         let args = this.convertToMinerArgs();
-        let daemon = spawn(path.join(global.appRootDir+`/${exe}`), args);
+        this.daemon = spawn(path.join(global.appRootDir+`/${exe}`), args);
     
         //listen for data fromt eh miner
-        daemon.stdout.setEncoding('utf8');
-        daemon.stdout.on('data', (data) => {
-            //console.log(`Received new miner data: ${data}`);
+        this.daemon.stdout.setEncoding('utf8');
+        this.daemon.stdout.on('data', (data) => {
             //if we still have an active sender, send it a reply
             if(this.sender) {
-                console.log("sender")
                 //convert data from ascii to text
                 //is this a device info line?  if so update
                 let line = stripAnsi(data.toString());
@@ -110,12 +109,14 @@ module.exports = class Miner {
             }
         });
     
-        daemon.stderr.on('data', (err) => {
+        this.daemon.stderr.on('data', (err) => {
             console.log(`Received miner error: ${err}`);
         });
     
-        daemon.on('close', (code) => {
+        this.daemon.on('close', (code) => {
             console.log(`Miner closed with code: ${code}`);
+            // send the new output to listeners
+            this.sender.send('update-miner-output', "Miner has been stopped.");
         });
     }
 }

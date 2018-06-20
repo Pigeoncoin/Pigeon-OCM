@@ -21,7 +21,6 @@ module.exports = class DeviceInfo extends Component {
     }
 
     update() {
-        console.log("Rendered got deviceInfo: " + JSON.stringify(this.props.device))
         let device = new Device(this.props.device.deviceId, this.props.device.deviceName);
         device.rates = this.props.device.rates;
         let res = device.getAverageHashrate();

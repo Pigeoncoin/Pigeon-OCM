@@ -1,6 +1,6 @@
 const path = require('path');
 const electron = require('electron');
-const { app, ipcMain } = electron;
+const { app, ipcMain, Menu } = electron;
 const AppTray = require('./app/AppTray');
 const MainWindow = require('./app/MainWindow');
 const Miner = require('./src/miner');
@@ -41,6 +41,8 @@ app.on('ready', () => {
     //frame removes the window border and title bar
     //resizable
     mainWindow =  new MainWindow(mainConfig, path.join(__dirname, '/src/index.html'));
+    //const mainMenu = Menu.buildFromTemplate(menuTemplate);
+    //Menu.setApplicationMenu(mainMenu);
 
     //get icon, create tray icon
     const iconName = process.platform === 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
@@ -48,15 +50,25 @@ app.on('ready', () => {
     tray = new AppTray(iconPath, mainWindow);
 });
 
+const menuTemplate = [{
+}];
+
 ipcMain.on('start-mining', (event, run) => {
     //validate miner address?
     miner.sender = event.sender;
+    console.log("Current state: " + run)
     if(run){
         miner.startMinerInstance();
         //miner.startDebugInstance();
+    }else {
+        miner.stopMinerInstance();
     }
 });
 
 ipcMain.on('update-miner-address', (event, address) => {
     miner.minerConfig.user = address;
+});
+
+ipcMain.on('update-pool-selection', (event, url) => {
+    miner.minerConfig.url = url;
 });
