@@ -116,7 +116,7 @@ module.exports = class Miner {
         this.daemon.on('close', (code) => {
             console.log(`Miner closed with code: ${code}`);
             // send the new output to listeners
-            this.sender.send('update-miner-output', "Miner has been stopped.");
+            this.sender.send('update-miner-output', "\n\nMiner has been stopped.");
         });
     }
 }

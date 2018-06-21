@@ -22,7 +22,7 @@ const mainConfig = {
 let minerConfig = {
     algo:"x16s",
     intensity: "18",
-    url:"stratum+tcp://pool.pigeoncoin.org:3663",
+    url: "pool.pigeoncoin.org:3663",
     user: null, //PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG
     pass:"x",
     donate:"7.0"

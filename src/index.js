@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import { combineReducers, createStore, applyMiddleware } from 'redux';
 import {ipcRenderer } from 'electron';
 
+
+
 import store from './reducers';
 
 import MinerConfig from './containers/minerConfig';
@@ -12,6 +14,8 @@ import MinerInfo from './containers/minerInfo';
 import Console from './components/console';
 import PoolSelector from './components/poolSelector';
 import Utils from './utils';
+
+
 
 
 class App extends Component {
@@ -24,10 +28,11 @@ class App extends Component {
       address: "",
       showConsole: false,
       devices: [],
-      pools: [],
       isMining: false
     };
 
+ 
+    
     this.onAddressUpdate = this.onAddressUpdate.bind(this);
     this.onToggleConsole = this.onToggleConsole.bind(this);
     this.onStartMining = this.onStartMining.bind(this);
