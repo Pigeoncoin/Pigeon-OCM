@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import firebase from 'firebase/app';
 require('firebase/database');
+import Store from '../store';
 
 //firebase config
 const fbconfig = {
@@ -17,42 +18,25 @@ const fbconfig = {
 class PoolSelector extends Component{
     constructor(props) {
         super(props);
+        const store = new Store({
+            configName: 'user-preferences'
+        });
 
         this.state = {
             pools: [],
-            activePoolUrl: ""
+            activePoolUrl: store.data.selectedPool ? store.data.selectedPool : ""
         };
         this.handleChange = this.handleChange.bind(this);
         this.renderPoolList = this.renderPoolList.bind(this);
 
         //initialize firebase
         firebase.initializeApp(fbconfig);
-        
-/*
-        pools: {
-            "blockcruncher":{
-                "discord":"https://discord.gg/5g8McbZ",
-                "ports":{
-                    "3333":3333,"3366":3366,"3636":3636
-                },
-                "stratum":"blockcruncher.com",
-                "website":"https://blockcruncher.com"
-            },
-            "official":{
-                "discord":"https://discord.gg/A7cvb2d",
-                "ports":{"3663":3663},
-                "stratum":"pool.pigeoncoin.org",
-                "website":"https://pool.pigeoncoin.org"
-            }
-        }
-        */
-
     }
 
     componentDidMount() {
         let poolsData = [];
         let fbDb = firebase.database();
-        fbDb.ref("/pools").once('value')
+        fbDb.ref("/ocm/pools").once('value')
         .then(snapshot => {
 
             for(let key in snapshot.val()){
@@ -76,7 +60,6 @@ class PoolSelector extends Component{
     renderPoolList() {
         if(this.state.pools.length > 0) {
             return this.state.pools.map(pool => {
-                console.log("Pool: " + JSON.stringify(pool))
                 //need to create 1 entry per port
                 return pool.ports.map(port => {
                     return <option key={`${pool.website}:${port}`} value={`${pool.stratum}:${port}`}>{pool.website}:{port}</option>

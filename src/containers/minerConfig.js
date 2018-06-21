@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
 
+import Store from '../store';
 import DeviceInfo from '../components/deviceInfo';
 
 module.exports = class MinerConfig extends Component {
     constructor(props) {
         super(props);
 
+        const store = new Store({
+            configName: 'user-preferences'
+        });
+
         this.state = {
-            address: null
+            address: store.data.minerAddress ? store.data.minerAddress : ""
         };
 
         this.onAddressUpdate = this.onAddressUpdate.bind(this);
@@ -27,7 +32,8 @@ module.exports = class MinerConfig extends Component {
                     className="miner-address" 
                     onChange={this.onAddressUpdate} 
                     type="text"
-                    placeholder="Type miner address here..." />
+                    placeholder="Type miner address here..." 
+                    value={this.state.address}/>
                 </div>
             </div>
         );

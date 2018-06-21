@@ -5,6 +5,7 @@ const AppTray = require('./app/AppTray');
 const MainWindow = require('./app/MainWindow');
 const Miner = require('./src/miner');
 global.appRootDir = path.resolve(__dirname);
+const Store = require('./src/store');
 
 const { Device, HashRate, getInfoFromLine, getRateInHash} = require('./src/utils');
 
@@ -23,11 +24,17 @@ let minerConfig = {
     algo:"x16s",
     intensity: "18",
     url: "pool.pigeoncoin.org:3663",
-    user: null, //PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG
+    user: "PDiZ89gk5HMqwrcGp6Hs9WdgFALzLbD4HG",
     pass:"x",
     donate:"7.0"
 }; 
 
+const store = new Store({
+    configName: 'user-preferences',
+    defaults: {
+        windowBounds: {width: 720, height: 640}
+    }
+})
 
 let mainWindow;
 let tray;
@@ -36,6 +43,14 @@ let miner;
 let sender = null;
 
 app.on('ready', () => {
+    //load saved settings
+    let { width, height } = store.get('windowBounds');
+    mainConfig.width = width;
+    mainConfig.height = height;
+
+    minerConfig.user = store.get('minerAddress');
+    minerConfig.url = store.get('selectedPool');
+
     miner = new Miner(minerConfig, sender);
     //app.dock.hide(); //hide the dock idon
     //frame removes the window border and title bar
@@ -43,11 +58,21 @@ app.on('ready', () => {
     mainWindow =  new MainWindow(mainConfig, path.join(__dirname, '/src/index.html'));
     //const mainMenu = Menu.buildFromTemplate(menuTemplate);
     //Menu.setApplicationMenu(mainMenu);
-
+    
     //get icon, create tray icon
     const iconName = process.platform === 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
     const iconPath = path.join(__dirname, `/src/assets/${iconName}`);
     tray = new AppTray(iconPath, mainWindow);
+    
+    
+    //save window size
+    mainWindow.on('resize', () => {
+        let { width, height } = mainWindow.getBounds();
+        store.set('windowBounds', { width, height });
+    });
+
+
+    
 });
 
 const menuTemplate = [{
@@ -56,7 +81,6 @@ const menuTemplate = [{
 ipcMain.on('start-mining', (event, run) => {
     //validate miner address?
     miner.sender = event.sender;
-    console.log("Current state: " + run)
     if(run){
         miner.startMinerInstance();
         //miner.startDebugInstance();
@@ -67,8 +91,10 @@ ipcMain.on('start-mining', (event, run) => {
 
 ipcMain.on('update-miner-address', (event, address) => {
     miner.minerConfig.user = address;
+    store.set('minerAddress', address);
 });
 
 ipcMain.on('update-pool-selection', (event, url) => {
     miner.minerConfig.url = url;
+    store.set('selectedPool', url);
 });
