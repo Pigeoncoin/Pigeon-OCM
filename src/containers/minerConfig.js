@@ -10,11 +10,11 @@ module.exports = class MinerConfig extends Component {
         const store = new Store({
             configName: 'user-preferences'
         });
-
+        let minerAddress = store.data.minerAddress;
         this.state = {
-            address: store.data.minerAddress ? store.data.minerAddress : ""
+            address: ""
         };
-
+        if(minerAddress) { this.setState({address: minerAddress})}
         this.onAddressUpdate = this.onAddressUpdate.bind(this);
     }
 

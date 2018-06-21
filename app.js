@@ -45,11 +45,21 @@ let sender = null;
 app.on('ready', () => {
     //load saved settings
     let { width, height } = store.get('windowBounds');
-    mainConfig.width = width;
-    mainConfig.height = height;
-
-    minerConfig.user = store.get('minerAddress');
-    minerConfig.url = store.get('selectedPool');
+    let minerAddress = store.get('minerAddress');
+    let selectedPool = store.get('selectedPool');
+    
+    if(width){
+        mainConfig.width = width;
+    }
+    if(height){
+        mainConfig.height = height;
+    }
+    if(minerAddress){
+        minerConfig.user = store.get('minerAddress');
+    }
+    if(selectedPool){
+        minerConfig.url = store.get('selectedPool');
+    }
 
     miner = new Miner(minerConfig, sender);
     //app.dock.hide(); //hide the dock idon

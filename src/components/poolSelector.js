@@ -24,8 +24,14 @@ class PoolSelector extends Component{
 
         this.state = {
             pools: [],
-            activePoolUrl: store.data.selectedPool ? store.data.selectedPool : ""
+            activePoolUrl: ""
         };
+
+        let selectedPool = store.data.selectedPool;
+        if(selectedPool) {
+            this.setState({activePoolUrl: selectedPool})
+        }
+
         this.handleChange = this.handleChange.bind(this);
         this.renderPoolList = this.renderPoolList.bind(this);
 
